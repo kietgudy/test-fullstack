@@ -1,6 +1,8 @@
+require("dotenv").config();
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const jwt = require("jsonwebtoken");
 const createUserService = async (name, email, password) => {
   try {
     const hashPassword = await bcrypt.hash(password, saltRounds);
@@ -19,23 +21,36 @@ const createUserService = async (name, email, password) => {
 };
 const handleLoginService = async (email, password) => {
   try {
-    const user = await User.findOne({email: email})
-    if(user) {
-      const isMatchPassword = await bcrypt.compare(password, user.password)
-      if(!isMatchPassword) {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const isMatchPassword = await bcrypt.compare(password, user.password);
+      if (!isMatchPassword) {
         return {
           EC: 2,
-          EM: 'Email/Password not true'
-        }
+          EM: "Email/Password not true",
+        };
       } else {
         //create access token
-        return "create access token"
+        const payload = {
+          email: user.email,
+          name: user.name,
+        };
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        });
+        return {
+          access_token,
+          user: {
+            email: user.email,
+            name: user.name,
+          },
+        };
       }
-    }else{
-      return{
+    } else {
+      return {
         EC: 1,
-        EM: 'Email/Password not true'
-      }
+        EM: "Email/Password not true",
+      };
     }
   } catch (error) {
     console.log(error);
@@ -44,5 +59,6 @@ const handleLoginService = async (email, password) => {
 };
 
 module.exports = {
-  createUserService,handleLoginService
+  createUserService,
+  handleLoginService,
 };
