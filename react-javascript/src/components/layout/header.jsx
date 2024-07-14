@@ -1,8 +1,9 @@
 import React, { Fragment, useState } from "react";
 import { HomeOutlined, SettingOutlined, TeamOutlined } from "@ant-design/icons";
 import { Menu } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const Header = () => {
+  const navigate = useNavigate();
   const [current, setCurrent] = useState("mail");
   const onClick = (e) => {
     console.log("click ", e);
@@ -25,11 +26,21 @@ const Header = () => {
       icon: <SettingOutlined />,
       children: [
         {
-          label: "Login",
+          label: <Link to={"login"}>Login</Link>,
           key: "login",
         },
         {
-          label: "Logout",
+          label: (
+            <span
+              onClick={() => {
+                localStorage.clear("access_token");
+                navigate("/");
+                // setCurrent("home");
+              }}
+            >
+              Logout
+            </span>
+          ),
           key: "logout",
         },
       ],
