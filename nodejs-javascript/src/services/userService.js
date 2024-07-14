@@ -5,6 +5,11 @@ const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const createUserService = async (name, email, password) => {
   try {
+    //check email exist
+    const user =  await User.findOne({email})
+    if (user) {
+      return null
+    }
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
     let result = await User.create({
@@ -39,6 +44,7 @@ const handleLoginService = async (email, password) => {
           expiresIn: process.env.JWT_EXPIRE,
         });
         return {
+          EC: 0,
           access_token,
           user: {
             email: user.email,
@@ -57,8 +63,17 @@ const handleLoginService = async (email, password) => {
     return null;
   }
 };
+const getUserService = async () => {
+  try {
+    let result = await User.find({})
+  return result
+  } catch (error) {
+    console(error) 
+    return null
+  }
+}
 
 module.exports = {
   createUserService,
-  handleLoginService,
+  handleLoginService,getUserService
 };
