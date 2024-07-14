@@ -1,30 +1,39 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button, Divider, Form, Input, message, notification } from "antd";
 import "./login.css";
 import { SmileOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { loginApi } from "../../utils/api";
+import { AuthContext } from "../../context/auth.context";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { setAuth } = useContext(AuthContext);
 
-const onFinish = async (values) => {
-  const {email, password} = values
-  const res = await loginApi(email, password)
-  if (res && res.EC === 0) {
-    localStorage.setItem("access_token", res.access_token)
-    notification.success({
-      message: "login user",
-      description: "success",
-    });
-    navigate("/");
-  } else {
-    notification.error({
-      message: "login error",
-      description: res?.EM ?? "error",
-    });
-  }
-}
+  const onFinish = async (values) => {
+    const { email, password } = values;
+    const res = await loginApi(email, password);
+    if (res && res.EC === 0) {
+      localStorage.setItem("access_token", res.access_token);
+      notification.success({
+        message: "login user",
+        description: "success",
+      });
+      setAuth({
+        isAuthenticated: true,
+        user: {
+          email: res?.user?.email ?? "",
+          name: res?.user?.name ?? "",
+        },
+      });
+      navigate("/");
+    } else {
+      notification.error({
+        message: "login error",
+        description: res?.EM ?? "error",
+      });
+    }
+  };
 
   return (
     <div className="register-page">
