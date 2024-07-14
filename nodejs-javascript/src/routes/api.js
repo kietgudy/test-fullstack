@@ -1,6 +1,7 @@
 const express = require('express');
 const { createUser, handleLogin, getUser } = require('../controllers/userController');
-const delay = require('../middleware/delay')
+const delay = require('../middleware/delay');
+const auth = require('../middleware/auth');
 
 const routerAPI = express.Router();
 
@@ -14,7 +15,7 @@ const routerAPI = express.Router();
 // routerAPI.post('/users', postCreateUserAPI);
 // routerAPI.put('/users', putUpdateUserAPI);
 // routerAPI.delete('/users', deleteUserAPI);
-routerAPI.get("*", delay)
+routerAPI.all("*", auth)
 
 routerAPI.get("/", (req, res) => {
     return res.status(200).json("Hello api")
