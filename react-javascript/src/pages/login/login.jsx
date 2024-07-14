@@ -2,10 +2,29 @@ import React, { useState } from "react";
 import { Button, Divider, Form, Input, message, notification } from "antd";
 import "./login.css";
 import { SmileOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginApi } from "../../utils/api";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
 
+const onFinish = async (values) => {
+  const {email, password} = values
+  const res = await loginApi(email, password)
+  if (res && res.EC === 0) {
+    localStorage.setItem("access_token", res.access_token)
+    notification.success({
+      message: "login user",
+      description: "success",
+    });
+    navigate("/");
+  } else {
+    notification.error({
+      message: "login error",
+      description: res?.EM ?? "error",
+    });
+  }
+}
 
   return (
     <div className="register-page">
@@ -21,12 +40,13 @@ const LoginPage = () => {
           name="basic"
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
+          onFinish={onFinish}
           style={{ maxWidth: 600 }}
           autoComplete="off"
         >
           <Form.Item
             label="Email"
-            name="username"
+            name="email"
             rules={[{ required: true, message: "Email không được để trống!" }]}
           >
             <Input />
